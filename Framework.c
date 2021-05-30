@@ -16,13 +16,13 @@ int main()
 }
 int new_acc()
 {
-	printf("\nEnter your name");
-	printf("\nEnter your PAN number");
-	printf("\nEnter your DOB");
-	printf("\nEnter your Ph number");
+	printf("\nEnter your name:");
+	printf("\nEnter your PAN number:");
+	printf("\nEnter your DOB:");
+	printf("\nEnter your Ph number:");
 	printf("\nEnter your Adhaar No.");
-	printf("\nEnter your Address");
-	printf("\nEnter your Email ID");
+	printf("\nEnter your Address:");
+	printf("\nEnter your Email ID:");
 }
 
 int login()
