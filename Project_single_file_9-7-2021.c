@@ -95,8 +95,10 @@ void new_acc()
 
 	FILE* bank_detail=fopen("bank_detail.csv","a+");
 	FILE* users=fopen(file_name,"w+");
+	strcpy(file_name,user[0].info);strcat(file_name,".csv");
+	FILE* tran=fopen(file_name,"a+");
 	count = fopen("count.txt","w");
-	if (bank_detail==NULL ||users==NULL )
+	if (bank_detail==NULL ||users==NULL||tran==NULL )
 	{
 		printf("Error Occured while processing\n");
 		perror("Error Details:");
@@ -125,7 +127,8 @@ void new_acc()
 		tdate();
 		fprintf(bank_detail,"%s,%s,%s,%d/%d/%d,%d:%d:%d:%d\n",user[0].info,user[11].info,user[12].info,sysdate[0],sysdate[1],sysdate[2],sysdate[3],sysdate[4],sysdate[5],sysdate[6]);
 		fprintf(count,"%s",user[0].info);
-		fclose(bank_detail);fclose(users);fclose(count);
+		fprintf(tran,"%d/%d/%d,%d:%d:%d:%d,%s\n",sysdate[0],sysdate[1],sysdate[2],sysdate[3],sysdate[4],sysdate[5],sysdate[6],user[10].info);
+		fclose(bank_detail);fclose(users);fclose(count);fclose(tran);
 		//encryption();
 		getche();
 	}
