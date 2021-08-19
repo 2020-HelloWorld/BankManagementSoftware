@@ -21,7 +21,6 @@ void tdate();
 void password();
 void upi_password();
 int password_validity(char a[]);
-void password_edit();
 void display_bank();
 
 typedef struct user_details
@@ -76,9 +75,11 @@ void main()
 	printf("SELECT THE FOLLOWING OPTIONS: \n1.To create new account\n2.To login to excisting account\n3.To exit\n");
 	scanf("%d",&n);fflush(stdin);
 	if (n==1)
-		new_acc();
+		{new_acc();
+		goto beginning;}
 	else if(n==2)
-		login();
+		{login();
+		goto beginning;}
 	else if (n==3)
 	{
 		system("cls");
@@ -122,8 +123,9 @@ void new_acc()
 	count = fopen("count.txt","w");
 	if (bank_detail==NULL ||users==NULL||tran==NULL )
 	{
-		printf("Error Occured while processing\n");
-		perror("Error Details:");
+		//printf("Error Occured while processing\n");
+		MessageBox(0,"Error Occured while processing","$$ERROR$$",1);
+		//perror("Error Details:");
 		exit(0);
 	} 									
 	else
@@ -180,21 +182,25 @@ void new_acc()
 
 void login()
 {
+	
 	HANDLE console_color;
     console_color = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(console_color, 9);
+	int store=0;
 	system("cls");
 	char UN[20],PW[20],file_name[20];char c;
 	char* word;
-	int store=0;
 	int yes_or_no=0;fflush(stdin);
+	login_page:
+	
 	printf("\nEnter Your User name: ");scanf("%[^\n]s",UN);fflush(stdin);
 	printf("\nEnter Your Password: ");scanf("%[^\n]s",PW);fflush(stdin);
 	FILE* bank_detail=fopen("bank_detail.csv","r");
 	if (bank_detail==NULL )
 	{
-		printf("Error Occured while processing");
-		perror("ERROR Message:");
+		MessageBox(0,"Error Occured while processing","$$ERROR$$",1);
+		//printf("Error Occured while processing");
+		//perror("ERROR Message:");
 		exit(0);
 	}
 	else
@@ -209,7 +215,6 @@ void login()
 			if(strcmp(user[11].info,UN)==0 &&strcmp(user[12].info,PW)==0)
 			{
 				yes_or_no++;
-				
 				word = strtok(NULL,",");strcpy(user[13].info ,word);
 				word = strtok(NULL,",");strcpy(user[14].info ,word);
 				break;
@@ -217,16 +222,18 @@ void login()
 		}
 		if (yes_or_no==0)
 		{
-			printf("Invalid Username or password");exit(0);
+			MessageBox(0,"INVALID USERNAME OR PASSWORD","$$ERROR$$",1);
+			goto login_page;
+
 		}
 		strcpy(file_name,user[0].info);
 		char file_name1[20];
 		strcpy(file_name1,file_name);
 		strcat(file_name,".txt");
 		strcat(file_name1,".csv");
-		fclose(bank_detail);
 		//for neft
 		int amn,al;
+		fclose(bank_detail);
 		char acc_number[50],bank[50],rec_nam[50];
 		FILE *users = fopen(file_name,"r");
 		FILE *tran = fopen(file_name1,"a+");
@@ -262,6 +269,8 @@ void login()
 				printf("Enter the updated %s\n",user[j].detail);
 				scanf("%[^\n]s",user[j].info);strcat(user[j].info,"\n");
 				printf("Your information has been updated\n");
+				getche();
+				goto logged_in;
 			}
 			else if(choice == 2)
 			{
@@ -272,12 +281,12 @@ void login()
 				{
 					system("cls");
 					printf("\nWelcome to NEFT Transcation");
-					printf("\nPlease reconfirm your user name and password\n");fflush(stdin);
-					printf("\nEnter Your User name: ");scanf("%[^\n]s",UN);fflush(stdin);
-					printf("\nEnter Your Password: ");scanf("%[^\n]s",PW);fflush(stdin);
+					printf("\nPlease reconfirm your user name and password\n");
+					printf("\nEnter Your User name: ");fflush(stdin);scanf("%[^\n]s",UN);
+					printf("\nEnter Your Password: ");fflush(stdin);scanf("%[^\n]s",PW);
 					if(strcmp(user[11].info,UN)||strcmp(user[12].info,PW))
 					{
-						printf("\nInvalid Username or Password\n");
+						MessageBox(0,"INVALID USERNAME OR PASSWORD","$$ERROR$$",1);
 						goto transaction_start;
 					}
 					else
@@ -287,7 +296,7 @@ void login()
 						scanf("%d",&amn);
 						if(atoi(user[10].info)>amn)
 						{
-							printf("ENTER THE BANK NAME OF RECIEVER\n");fflush(stdin);scanf("%[^\n]s",bank);
+							printf("ENTER THE NAME OF RECIEVER\n");fflush(stdin);scanf("%[^\n]s",bank);
 							printf("ENTER THE BANK NAME OF RECIEVER\n");fflush(stdin);scanf("%[^\n]s",rec_nam);
 							printf("ENTER THE ACCOUNT NUMBER OF THE RECEIVER\n");fflush(stdin);scanf("%[^\n]s",acc_number);
 							al=atoi(user[10].info)-amn;
@@ -300,6 +309,8 @@ void login()
 							printf("\nAMOUNT TRANSFFERED: %d",amn);
 							tdate();
 							fprintf(tran,"%d/%d/%d,%d:%d:%d:%d,%d,NEFT\n",sysdate[0],sysdate[1],sysdate[2],sysdate[3],sysdate[4],sysdate[5],sysdate[6],amn);
+								printf("\n");
+								goto transaction_start;
 						}
 						else
 						{
@@ -328,7 +339,8 @@ void login()
 							{
 								bal=atoi(user[10].info)-amt;
 								itoa(bal,user[10].info,10);
-								printf("\n\tTransaction succesfull!!");
+								//printf("\n\tTransaction succesfull!!")
+								MessageBox(0,"Transaction succesfull!!","**congrats**",1);
 								printf("\n\tYour current balance is %s",user[10].info);
 								fseek(tran,0,2);
 								tdate();
@@ -336,7 +348,7 @@ void login()
 							}
 							else
 							{
-								printf("Incorrect Password!!");
+								MessageBox(0,"INVALID PASSWORD","$$ERROR$$",1);
 								printf("Enter\n1.To try again\n2.To change password\n");fflush(stdin);
 								int kn;
 								scanf("%d",&kn);
@@ -352,7 +364,7 @@ void login()
 									printf("\nEnter Your Password: ");scanf("%[^\n]s",PW);fflush(stdin);
 									if(strcmp(user[11].info,UN)||strcmp(user[12].info,PW))
 									{
-										printf("\nInvalid Username or Password\n");
+										MessageBox(0,"INVALID USERNAME OR PASSWORD","$$ERROR$$",1);
 										goto transaction_start;
 									}
 									else
@@ -383,7 +395,7 @@ void login()
 											ko++;
 										}
 										fclose(fp);fclose(tm);fclose(fopen("tem.dat","w"));
-
+										goto amm;
 									}
 								}
 							}
@@ -408,10 +420,40 @@ void login()
 				else if (choice1==3)
 				{
 					//Withdrawal
+					int amt1;
+					printf("Enter the amount you want to withdraw: ");fflush(stdin);scanf("%d",&amt1);
+					amm1:
+					if(amt1>atoi(user[10].info))
+					{
+						printf("\n\tBalance not sufficient...\tEnter the amount again:" );goto amm1;
+					}
+					else
+					{
+						int balance=atoi(user[10].info)-amt1;
+						itoa(balance,user[10].info,10);
+						//printf("\n\tTransaction succesfull!!")
+						MessageBox(0,"Transaction succesfull!!","**congrats**",1);
+						printf("\n\tYour current balance is %s",user[10].info);
+						fseek(tran,0,2);
+						tdate();
+						fprintf(tran,"%d/%d/%d,%d:%d:%d:%d,%d,Debit\n",sysdate[0],sysdate[1],sysdate[2],sysdate[3],sysdate[4],sysdate[5],sysdate[6],amt1);
+					}
+					
+					
 				}
 				else if (choice1==4)
 				{
 					//Deposit
+					int amt2;
+					printf("Enter the amount you want to deposit: ");fflush(stdin);scanf("%d",&amt2);
+					int balance=atoi(user[10].info)+amt2;
+					itoa(balance,user[10].info,10);
+					//printf("\n\tTransaction succesfull!!")
+					MessageBox(0,"Transaction succesfull!!","**congrats**",1);
+					printf("\n\tYour current balance is %s",user[10].info);
+					fseek(tran,0,2);
+					tdate();
+					fprintf(tran,"%d/%d/%d,%d:%d:%d:%d,%d,Credit\n",sysdate[0],sysdate[1],sysdate[2],sysdate[3],sysdate[4],sysdate[5],sysdate[6],amt2);
 				}
 				else if (choice1==5)
 				{
@@ -458,6 +500,8 @@ void login()
 						printf("%s\t\t",pieces);
 						serial++;
 					}
+					getche();
+					goto logged_in;
 				}
 				/*
 				else if(d_c=='2')
@@ -518,7 +562,8 @@ void login()
 			}
 			else
 			{
-				printf("Invalid Key....PLEASE ENTER THE CORRECT choice");
+				//printf("Invalid Key....PLEASE ENTER THE CORRECT choice");
+				MessageBox(0,"Invalid Key....PLEASE ENTER THE CORRECT choice","$$ERROR$$",1);
 				getche();
 				goto logged_in;
 			}
@@ -542,13 +587,15 @@ if(i==1)
 	{				
 		if (strlen(user[i].info)<4)
 		{
-			printf("Invalid entry!\nName is too short");
+			//printf("Invalid entry!\nName is too short");
+			MessageBox(0,"Invalid entry!\nName is too short","$$ERROR$$",1);
 			getche();
 			i--;
 		}
 		else if(strlen(user[i].info)>40)
 		{
-			printf("Invalid entry!\nName is too long");
+			//printf("Invalid entry!\nName is too long");
+			MessageBox(0,"Invalid entry!\nName is too long","$$ERROR$$",1);
 			getche();
 			i--;	
 		}
@@ -562,7 +609,8 @@ if(i==1)
 		char *yy =strtok(NULL,"/");
 		if (fdate(atoi(dd),atoi(mm),atoi(yy))==0)
 		{
-			printf("Invalid Date");
+			//printf("Invalid Date");
+			MessageBox(0,"Invalid Date","$$ERROR$$",1);
 			getche();
 			i--;
 		}
@@ -578,7 +626,8 @@ if(i==1)
 		if((sysdate[2]-atoi(yy)<atoi(user[i].info))||(sysdate[2]-atoi(yy)>atoi(user[i].info)+1))
 		{
 			i--;
-			printf("Age seems wrong\n");
+			//printf("Age seems wrong\n");
+			MessageBox(0,"ENTER THE CORRECT AGE","$$ERROR$$",1);
 			getche();
 		}
 	}
@@ -592,7 +641,8 @@ if(i==1)
 		int kn=i;
 		if(strlen(user[i].info)!=10)
 		{
-			printf("Invalid PAN\n");
+			//printf("Invalid PAN\n");
+			MessageBox(0,"ENTER VALID PAN NUMBER","$$ERROR$$",1);
 			i--;
 		}
 		else
@@ -601,7 +651,8 @@ if(i==1)
 			{
 				if(!(user[i].info[j]>47&&user[i].info[j]<58))
 				{
-					printf("Invalid PAN\n");
+					//printf("Invalid PAN\n");
+					MessageBox(0,"ENTER VALID PAN NUMBER","$$ERROR$$",1);
 					i--;
 					break;
 				}
@@ -612,7 +663,8 @@ if(i==1)
 				{
 					if(!(user[i].info[j]>64&&user[i].info[j]<91))
 					{
-						printf("Invalid PAN\n");
+						//printf("Invalid PAN\n");
+						MessageBox(0,"ENTER VALID PAN NUMBER","$$ERROR$$",1);
 						i--;
 						break;
 					}
@@ -622,7 +674,8 @@ if(i==1)
 			{
 				if(!(user[i].info[9]>64&&user[i].info[9]<91))
 				{
-					printf("Invalid PAN\n");
+					//printf("Invalid PAN\n");
+					MessageBox(0,"ENTER VALID PAN NUMBER","$$ERROR$$",1);
 					i--;
 				}
 			}
@@ -644,14 +697,16 @@ if(i==1)
 		{
 			if(!(user[i].info[j]>47&&user[i].info[j]<58))
 			{
-				printf("Invalid Adhaar Number\n");
+				//printf("Invalid Adhaar Number\n");
+				MessageBox(0,"ENTER VALID AADHAR NUMBER","$$ERROR$$",1);
 				i--;
 				break;
 			}
 		}
 		if(strlen(user[i].info)!=12&&zs==i)
 		{
-			printf("Invalid Aadhar Number\n");
+			//printf("Invalid Aadhar Number\n");
+			MessageBox(0,"ENTER VALID AADHAR NUMBER","$$ERROR$$",1);
 			i--;
 		}
 		getche();
@@ -664,14 +719,16 @@ if(i==1)
 		{
 			if(!(user[i].info[j]>47&&user[i].info[j]<58))
 			{
-				printf("Invalid Phone Number\n");
+				//printf("Invalid Phone Number\n");
+				MessageBox(0,"ENTER VALID PHONE NUMBER","$$ERROR$$",1);
 				i--;
 				break;
 			}
 		}
 		if(strlen(user[i].info)!=10&&zs==i)
 		{
-			printf("Invalid Phone Number\n");
+			//printf("Invalid Phone Number\n");
+			MessageBox(0,"ENTER VALID PHONE NUMBER","$$ERROR$$",1);
 			i--;
 		}
 		getche();
@@ -684,19 +741,22 @@ if(i==1)
 		{
 			if(!(user[i].info[j]>47&&user[i].info[j]<58))
 			{
-				printf("Enter in numbers only\n");
+				//printf("Enter in numbers only\n");
+				MessageBox(0,"ENTER  NUMBERS ONLY ","$$ERROR$$",1);
 				i--;
 				break;
 			}
 		}
 		if(atoi(user[i].info)<500&&zs==i)
 		{
-			printf("Minimum Deposite amount is 500\n");
+			//printf("Minimum Deposite amount is 500\n");
+			MessageBox(0,"Minimum Deposite amount is 500","$$ERROR$$",1);
 			i--;
 		}
-		else if(atoi(user[i].info)>10000&&zs==i)
+		else if(atoi(user[i].info)>100000&&zs==i)
 		{
-			printf("Maximum Deposite amount is 10000\n");
+			//printf("Maximum Deposite amount is 10000\n");
+			MessageBox(0,"Maximum Deposite amount is 100000","$$ERROR$$",1);
 			i--;
 		}
 		getche();
@@ -705,13 +765,15 @@ if(i==1)
 	{
 		if (strlen(user[i].info)<4)
 		{
-			printf("Invalid entry!\nUsername is too short");
+			//printf("Invalid entry!\nUsername is too short");
+			MessageBox(0,"Invalid entry!\nUsername is too short","$$ERROR$$",1);
 			getche();
 			i--;
 		}
 		else if(strlen(user[i].info)>12)
 		{
-			printf("Invalid entry!\nUsername is too long");
+			//printf("Invalid entry!\nUsername is too long");
+			MessageBox(0,"Invalid entry!\nUsername is too long","$$ERROR$$",1);
 			getche();
 			i--;	
 		}
@@ -833,7 +895,8 @@ void encryption(char E_file[])
 	fp=fopen(E_file,"w");
 	if(fp==NULL || tfp==NULL)
 	{
-		printf("Error while encryption\n");
+		//printf("Error while encryption\n");
+		MessageBox(0,"Error while encryption","$$ERROR$$",1);
 		exit(-1);
 	}
 	else 
@@ -857,7 +920,8 @@ void decryption(char E_file[])
 	tfp=fopen("tempf.dat","r");
 	if(fp==NULL || tfp==NULL)
 	{
-		printf("Error while decryption\n");
+		//printf("Error while decryption\n");
+		MessageBox(0,"Error while decryption","$$ERROR$$",1);
 		exit(-1);
 	}
 	else 
@@ -883,14 +947,16 @@ void upi_password()
     printf("\nEnter your 4 digit upi password");scanf("%s",passkey);   
 	if(strlen(passkey)!=4)
 	{
-		printf("Password should be exactly 4 digits\n");
+		//printf("Password should be exactly 4 digits\n");
+		MessageBox(0,"Password should be exactly 4 digits","$$ERROR$$",1);
 		goto upi_key;
 	}
 	for(int j=0;j<4;j++)
 	{
 		if(!(passkey[j]>47&&passkey[j]<58))
 		{
-			printf("Password should be only digits\n");
+			//printf("Password should be only digits\n");
+			MessageBox(0,"Password should be only digits","$$ERROR$$",1);
 			goto upi_key;
 		}
 	}
@@ -903,7 +969,8 @@ int password_validity(char a[])
 	char symbols[] = "!@#$%^&*()_-/|+.,:;\"'";
 	if(strlen(a)<8)
 	{
-		printf("Password is too short\n");
+		//printf("Password is too short\n");
+		MessageBox(0,"Password is too short","$$ERROR$$",1);
 		return 0;
 	}
 	for(int i=0;i<strlen(a);i++)
@@ -938,49 +1005,27 @@ int password_validity(char a[])
 	}
 	else if(l==0)
 	{
-		printf("Password must contain atleast 1 lowercase letter\n");
+		MessageBox(0,"Password must contain atleast 1 lowercase letter","$$ERROR$$",1);
+		//printf("Password must contain atleast 1 lowercase letter\n");
 	}
 	else if(L==0)
 	{
-		printf("Password must contain atleast 1 uppercase letter\n");
+		MessageBox(0,"Password must contain atleast 1 uppercase letter","$$ERROR$$",1);
+		//printf("Password must contain atleast 1 uppercase letter\n");
+
 	}
 	else if(c==0)
 	{
-		printf("Password must contain atleast 1 special charedcter\n");
+		MessageBox(0,"Password must contain atleast 1 special charedcter","$$ERROR$$",1);
+		//printf("Password must contain atleast 1 special charedcter\n");
 	}
 	else if(n==0)
 	{
-		printf("Password must contain atleast 1 number\n");
+		MessageBox(0,"Password must contain atleast 1 number","$$ERROR$$",1);
+		//printf("Password must contain atleast 1 number\n");
 	}
 	return 0;
 }
-/*
-void password_edit()
-{
-										char det[500];
-										FILE* tm=fopen("tem.dat","w");
-										FILE* fp=fopen("Bank_detail.csv","r");
-										while(fgets(det,500,fp))
-										{
-											fputs(det,tm);
-										}
-										fclose(fp);fclose(tm);
-										tm=fopen("tem.dat","r");
-										fp=fopen("Bank_detail.csv","w");
-										for(int i=i;fgets(det,500,tm);i++)
-										{
-											if(i!=store)
-											{
-												fputs(det,fp);
-											}
-											else 
-											{
-												tdate();
-												fprintf(fp,"%s,%s,%s,%s,%s,%d/%d/%d,%d:%d:%d:%d\n",user[0].info,user[11].info,user[12].info,user[13].info,user[14].info,sysdate[0],sysdate[1],sysdate[2],sysdate[3],sysdate[4],sysdate[5],sysdate[6]);
-											}
-										}
-										fclose(fp);fclose(tm);fclose(fopen("tem.dat","w"));
-}*/
 
 void display_bank()
 {
